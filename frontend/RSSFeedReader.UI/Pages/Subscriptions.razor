@@ -1,0 +1,48 @@
+@page "/"
+@using System.Net.Http.Json
+@inject System.Net.Http.HttpClient Http
+
+<h3>Subscriptions</h3>
+
+<input @bind="newUrl" placeholder="Paste feed URL" />
+<button @onclick="Add">Add</button>
+
+<ul>
+    @foreach (var s in subs)
+    {
+        <li>@s.Url (@s.CreatedAt)</li>
+    }
+</ul>
+
+@code {
+    string newUrl = string.Empty;
+    List<SubscriptionDto> subs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    async Task Load()
+    {
+        try
+        {
+        subs = await Http.GetFromJsonAsync<List<SubscriptionDto>>("subscriptions") ?? new();
+        }
+        catch { }
+    }
+
+    async Task Add()
+    {
+        if (string.IsNullOrWhiteSpace(newUrl)) return;
+    var resp = await Http.PostAsJsonAsync("subscriptions", new { Url = newUrl });
+        if (resp.IsSuccessStatusCode)
+        {
+            var created = await resp.Content.ReadFromJsonAsync<SubscriptionDto>();
+            if (created != null) subs.Add(created);
+            newUrl = string.Empty;
+        }
+    }
+
+    public class SubscriptionDto { public Guid Id { get; set; } public string Url { get; set; } = string.Empty; public DateTimeOffset CreatedAt { get; set; } }
+}

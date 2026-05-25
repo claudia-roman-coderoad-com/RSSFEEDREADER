@@ -1,0 +1,11 @@
+@namespace RSSFeedReader.UI
+@using Microsoft.AspNetCore.Components.Routing
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="null" />
+    </Found>
+    <NotFound>
+        <p>Not found</p>
+    </NotFound>
+</Router>
